@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import Modal from "react-native-modal";
+import moment from 'moment';
 
 export default class App extends Component {
   constructor(props) {
@@ -14,13 +15,20 @@ export default class App extends Component {
     this.state = {
       selectedStartDate: null,
       isModalVisible: false,
-      selectedDayColor: '#7300e6',
+      selectedDayColor: null,
       customDateStyle: []
     };
     this.onDateChange = this.onDateChange.bind(this);
     this.setIsModalVisible = this.setIsModalVisible.bind(this);
     this.setSelectedDayColor = this.setSelectedDayColor.bind(this);
   }
+
+  // -- for later
+  // var flow = {
+  //   '#ffe6ff': 'spotting',
+  //   '#ff3333': 'light',
+  //   '#800000': 'heavy'
+  // };
 
   onDateChange(date) {
     this.setState({
@@ -36,17 +44,30 @@ export default class App extends Component {
   }
 
   setSelectedDayColor(color) {
-    let date = this.state.customDateStyle;
-    date.push({
-      date: this.state.selectedStartDate,
-      style: {backgroundColor: color}
+    moment.locale('en-US');
+    let date = moment(this.state.selectedStartDate).format("L");
+    let historyArray = this.state.customDateStyle;
+
+    const isFound = historyArray.some(element => {
+      if (element.date === date) {
+        element.style = {backgroundColor: color}
+        return true;
+      }
+      return false;
     });
-    this.setState({customDateStyle: date, selectedDayColor: color})
+
+    if (!isFound) {
+      historyArray.push({
+        date: date,
+        style: {backgroundColor: color}
+      });
+    }
+
+    this.setState({customDateStyle: historyArray, selectedDayColor: color})
   }
 
   render() {
     const { selectedStartDate, isModalVisible, selectedDayColor, customDateStyle } = this.state;
-    console.log(selectedDayColor)
     const startDate = selectedStartDate ? selectedStartDate.toString() : '';
     return (
       <View style={styles.container}>
